@@ -10,9 +10,13 @@ public class ErrorCodeConstants {
 
     public static final String USERNAME_IN_USE = "USERNAME_IN_USE";
 
+    public static final String SELLER_NAME_IN_USE = "SELLER_NAME_IN_USE";
+
     public static final String USERNAME_NOT_VALID = "USERNAME_NOT_VALID";
 
     public static final String USERNAME_NOT_NULL = "USERNAME_NOT_NULL";
+
+    public static final String SELLER_NAME_NOT_NULL = "SELLER_NAME_NOT_NULL";
 
     public static final String EMAIL_NOT_VALID = "EMAIL_NOT_VALID";
 

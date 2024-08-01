@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateBalanceRequest{
-    private String username;
-    private String user_id;
-}
 
+public class UserActivateRequest {
+    private String username;
+    private String emailValidatorCode;
+}

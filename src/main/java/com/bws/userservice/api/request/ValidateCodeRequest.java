@@ -5,8 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateBalanceRequest{
-    private String username;
-    private String user_id;
-}
 
+public class ValidateCodeRequest extends BaseRequest {
+}

@@ -1,19 +1,17 @@
 package com.bws.userservice.model.entity;
 
 import com.bws.userservice.model.Role;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.Table;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.EnumType;
+
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Table(name ="users")
@@ -26,9 +24,9 @@ import jakarta.persistence.EnumType;
 public class User{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "user_id")
-    private Long user_id;
+    private String userId;
 
     @Column(name = "username")
     private String username;
@@ -45,9 +43,27 @@ public class User{
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Lob
+    @Column(columnDefinition = "MEDIUMBLOB" ,name = "photo")
+    private String photo;
+
     @Column(name = "active")
     private int active;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<Balance> balance;
+
     @Column(name = "password")
     private String password;
+
+    @Column(name = "account_create_date")
+    private Timestamp accountCreateDate;
+
+    @Column(name = "password_expire_date")
+    private Timestamp passwordExpireDate;
+
+    @Column(name = "password_last_changed_date")
+    private Timestamp passwordLastChangedDate;
+
 }

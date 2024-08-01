@@ -19,14 +19,52 @@ spring:
     banner-mode: off
   application:
     name: user-service
+
+client:
+  feign:
+    microServiceRegister-service:
+      path: http://localhost:8090/registerservice
+      ready: /ready
+      stopped: /stopped
+
+    email-service:
+      path: http://localhost:8085/email
+      emailValidator: /validator
+      activateUser: /activate
+      passwordForget: /password/forget
+      passwordChangeCode: /password/change/code
+
+    token-service:
+      path: http://localhost:8079/token
+      extractUsername: /extract/username
+
 app:
-  routesMicroservices:
-    paymentService:
-      createBalance: http://localhost:8078/paymentservice/createbalance
   routesController:
-    requestmapping:
-      userServiceController: /userservice
-    notlocked:
-      user:
-        findByUsername: /findbyusername
-        registerUser: /registeruser
+    controllers:
+      userServiceController: /user
+      balanceServiceController: /user/balance
+    requestMapping:
+      secure:
+        user-service:
+          getSeller: /seller/get
+          addAddressInfo: /address/add
+          passwordChange: /password/change
+          extractRole: /extract/role
+          validateUserEmail: /activate
+          activateSellerByAdmin: /activate/seller
+          addPhoto: /photo/add
+          getPhoto: /photo/get
+
+        balance-service:
+          addBalance: /addbalance
+          getBalance: /getbalance
+
+      notSecure:
+        user-service:
+          extractSellerName: /extract/seller-name #
+          registerSeller: /register-seller
+          findByUsername: /find-with-username #tokenservice
+          registerUser: /register-user
+          passwordForget: /password/forget
+          passwordChangeWithCode: /password/change-with-code
+

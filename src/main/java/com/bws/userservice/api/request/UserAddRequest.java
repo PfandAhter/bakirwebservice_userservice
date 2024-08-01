@@ -30,16 +30,4 @@ public class UserAddRequest {
 
     private String lastName;
 
-    private String address;
-
-    private String phone;
-
-    private String district;
-
-    private String cityName;
-
-    private String postalCode;
-
-    private String countryName;
-
 }

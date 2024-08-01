@@ -29,7 +29,7 @@ public class GeneralInterceptorAspect {
                     errorCodes.setError_description(((Exception) param).getMessage());
                     errorCodeRepository.save(errorCodes);
                     Long localCode = 6000L;
-                    errorCodes.setError_code(errorCodes.getId()+localCode);
+                    errorCodes.setError_code(errorCodes.getErrorId()+localCode);
                     errorCodeRepository.save(errorCodes);
                 }
             }
