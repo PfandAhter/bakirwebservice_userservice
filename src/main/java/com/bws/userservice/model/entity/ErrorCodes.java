@@ -1,35 +1,25 @@
 package com.bws.userservice.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "error_codes")
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 
 public class ErrorCodes {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
-    private Long errorId;
+    private String id;
 
     @Column(name = "error")
     private String error;
 
-    @Column(name = "error_code")
-    private Long error_code;
-
-    @Column(name = "checked")
-    private int checked;
-
-    @Column(name = "error_description")
-    private String error_description;
+    @Column(name = "description")
+    private String description;
 
 }

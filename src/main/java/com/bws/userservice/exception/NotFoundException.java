@@ -2,18 +2,18 @@ package com.bws.userservice.exception;
 
 import lombok.Getter;
 
-@Getter
-public class AuthFailedException extends Exception{
+public class NotFoundException extends Exception {
 
+    @Getter
     private final String message;
 
-    public AuthFailedException(){
+    public NotFoundException() {
         super();
         this.message = null;
     }
-    public AuthFailedException(String message ){
+
+    public NotFoundException(String message) {
         super();
         this.message = message;
     }
-
 }

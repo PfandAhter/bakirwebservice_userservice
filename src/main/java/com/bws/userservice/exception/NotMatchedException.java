@@ -2,16 +2,17 @@ package com.bws.userservice.exception;
 
 import lombok.Getter;
 
-@Getter
-public class AuthFailedException extends Exception{
+public class NotMatchedException extends Exception{
 
+    @Getter
     private final String message;
 
-    public AuthFailedException(){
+    public NotMatchedException() {
         super();
         this.message = null;
     }
-    public AuthFailedException(String message ){
+
+    public NotMatchedException(String message) {
         super();
         this.message = message;
     }

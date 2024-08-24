@@ -46,12 +46,12 @@ app:
     requestMapping:
       secure:
         user-service:
-          getSeller: /seller/get
+          getSeller: /get
           addAddressInfo: /address/add
           passwordChange: /password/change
           extractRole: /extract/role
           validateUserEmail: /activate
-          activateSellerByAdmin: /activate/seller
+          activateSellerByAdmin: /activate
           addPhoto: /photo/add
           getPhoto: /photo/get
 
@@ -61,7 +61,7 @@ app:
 
       notSecure:
         user-service:
-          extractSellerName: /extract/seller-name #
+          extractSellerName: /extract/name
           registerSeller: /register-seller
           findByUsername: /find-with-username #tokenservice
           registerUser: /register-user

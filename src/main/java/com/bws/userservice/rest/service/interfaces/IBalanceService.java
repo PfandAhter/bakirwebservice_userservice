@@ -6,6 +6,7 @@ import com.bws.userservice.api.request.CreateBalanceRequest;
 import com.bws.userservice.api.response.AddBalanceResponse;
 import com.bws.userservice.api.response.BaseResponse;
 import com.bws.userservice.api.response.GetBalanceResponse;
+import com.bws.userservice.exception.CreateFailedException;
 import com.bws.userservice.model.entity.User;
 
 public interface IBalanceService {
@@ -14,7 +15,7 @@ public interface IBalanceService {
 
     GetBalanceResponse getBalance(BaseRequest request);
 
-    BaseResponse createBalance(CreateBalanceRequest request, User user);
+    BaseResponse createBalance(CreateBalanceRequest request, User user) throws CreateFailedException;
 
 
 }

@@ -1,17 +1,19 @@
 package com.bws.userservice.exception;
 
+
 import lombok.Getter;
 
 @Getter
-public class AuthFailedException extends Exception{
+public class CreateFailedException extends Exception{
 
     private final String message;
 
-    public AuthFailedException(){
+    public CreateFailedException(){
         super();
         this.message = null;
     }
-    public AuthFailedException(String message ){
+
+    public CreateFailedException(String message ){
         super();
         this.message = message;
     }

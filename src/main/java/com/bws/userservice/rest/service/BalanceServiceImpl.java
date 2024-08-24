@@ -7,6 +7,7 @@ import com.bws.userservice.api.request.CreateBalanceRequest;
 import com.bws.userservice.api.response.AddBalanceResponse;
 import com.bws.userservice.api.response.BaseResponse;
 import com.bws.userservice.api.response.GetBalanceResponse;
+import com.bws.userservice.exception.CreateFailedException;
 import com.bws.userservice.model.entity.Balance;
 import com.bws.userservice.model.entity.User;
 import com.bws.userservice.repository.BalanceRepository;
@@ -15,6 +16,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import static com.bws.userservice.model.constants.ErrorCodeConstants.BALANCE_CREATE_FAILED;
 
 @Service
 @RequiredArgsConstructor
@@ -55,17 +58,20 @@ public class BalanceServiceImpl implements IBalanceService {
 
     @Override
     @Transactional
-    public BaseResponse createBalance(CreateBalanceRequest request, User user) {
+    public BaseResponse createBalance(CreateBalanceRequest request, User user) throws CreateFailedException{
+        try {
+            Balance newBalance = new Balance();
+            newBalance.setMoney_code("TL");
+            newBalance.setAmount(0L);
+            newBalance.setUser(user);
+            newBalance.setUsername(request.getUsername());
+            balanceRepository.save(newBalance);
 
-        Balance newBalance = new Balance();
-        newBalance.setMoney_code("TL");
-        newBalance.setAmount(0L);
-        newBalance.setUser(user); // burayi duzenle requestle gelen usera gore
-        newBalance.setUsername(request.getUsername());
-        balanceRepository.save(newBalance);
-
-        return new BaseResponse();
-
+            return new BaseResponse();
+        }catch (Exception e){
+            log.error("Create balance error: " + e);
+            throw new CreateFailedException(BALANCE_CREATE_FAILED);
+        }
     }
 
 }

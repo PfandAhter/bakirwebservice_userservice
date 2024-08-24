@@ -3,13 +3,13 @@ package com.bws.userservice.rest.aspect;
 import com.bws.userservice.api.client.MicroServiceRegisterClient;
 import com.bws.userservice.api.request.MicroServiceReadyRequest;
 import com.bws.userservice.api.request.MicroServiceStoppedRequest;
+import com.bws.userservice.rest.service.CacheServiceImpl;
 import com.bws.userservice.rest.util.Util;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +28,9 @@ public class MicroServiceRegister {
 
     private static final String microServiceName = "USER-SERVICE";
 
+    private final CacheServiceImpl cacheService;
+
+
 
     @EventListener(ApplicationReadyEvent.class)
     public void logToDataBaseServiceReady(){
@@ -38,6 +41,9 @@ public class MicroServiceRegister {
         microServiceReadyRequest.setMicroServiceErrorCode("6000");
         microServiceReadyRequest.setMicroServiceReadyDate(Timestamp.from(Instant.now()));
         microServiceReadyRequest.setMicroServiceName(microServiceName);
+
+        cacheService.getErrorCodes();
+
 
         microServiceRegisterClient.microServiceReady(microServiceReadyRequest);
     }

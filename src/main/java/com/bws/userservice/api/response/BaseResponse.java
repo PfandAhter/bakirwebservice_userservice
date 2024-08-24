@@ -12,17 +12,18 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @JsonPropertyOrder({
-        "Statu",
-        "HataKodu",
-        "HataMesaji"
+        "Status",
+        "ErrorName",
+        "Desription"
 })
 public class BaseResponse {
-    @JsonProperty("Statu")
+
+    @JsonProperty("Status")
     private String status = ResponseStatus.SUCCESS;
 
-    @JsonProperty("HataKodu")
+    @JsonProperty("ErrorName")
     private String errorCode = Constants.SUCCESS;
 
-    @JsonProperty("HataMesaji")
+    @JsonProperty("Desription")
     private String errorDescription = Constants.SUCCESS;
 }

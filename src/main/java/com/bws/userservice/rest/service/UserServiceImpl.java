@@ -5,13 +5,12 @@ import com.bws.userservice.api.client.EmailServiceClient;
 import com.bws.userservice.api.client.TokenServiceClient;
 import com.bws.userservice.api.request.*;
 import com.bws.userservice.api.response.BaseResponse;
-import com.bws.userservice.api.response.SellerGetResponse;
-import com.bws.userservice.exception.AccessDeniedException;
-import com.bws.userservice.exception.ActivateCodeNotMatchedException;
+import com.bws.userservice.exception.CreateFailedException;
+import com.bws.userservice.exception.NotFoundException;
 import com.bws.userservice.model.Role;
-import com.bws.userservice.model.dto.SellerDTO;
 import com.bws.userservice.model.entity.*;
 import com.bws.userservice.repository.*;
+import com.bws.userservice.rest.service.interfaces.ICreateService;
 import com.bws.userservice.rest.service.interfaces.IUserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,11 +25,14 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
 
+import static com.bws.userservice.model.constants.ErrorCodeConstants.USER_CREATE_FAILED;
+import static com.bws.userservice.model.constants.ErrorCodeConstants.USER_NOT_FOUND;
+
 @RequiredArgsConstructor
 @Slf4j
 @Service
 
-public class UserServiceImpl implements IUserService {
+public class UserServiceImpl implements IUserService, ICreateService {
 
     private final ModelMapper modelMapper;
 
@@ -50,9 +52,6 @@ public class UserServiceImpl implements IUserService {
 
     private final TokenServiceClient tokenServiceClient;
 
-    private final SellerRepository sellerRepository;
-
-    private final MapperServiceImpl mapperService;
 
     @Override
     public User findUserByUsername(FindUserByUsernameRequest request) {
@@ -61,43 +60,45 @@ public class UserServiceImpl implements IUserService {
 
     @Transactional
     @Override
-    public BaseResponse createUser(UserAddRequest request) {
-        User user = modelMapper.map(request, User.class);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setActive(2);
+    public BaseResponse createUser(UserAddRequest request) throws CreateFailedException {
+        try {
+            User user = modelMapper.map(request, User.class);
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setActive(2); //TODO use enum instead of constant int value
 
-        if (request.getUsername().equals("Pfand") && request.getFirstName().equals("Ataberk") && request.getLastName().equals("Bakir")) {
-            user.setRole(Role.ADMIN);
-            user.setActive(1);
-        } else {
-            user.setRole(Role.CUSTOMER);
+            if (request.getUsername().equals("Pfand") && request.getFirstName().equals("Ataberk") && request.getLastName().equals("Bakir")) {
+                user.setRole(Role.ADMIN);
+                user.setActive(1); //TODO use enum instead of constant int value
+            } else {
+                user.setRole(Role.CUSTOMER);
+            }
+
+            Timestamp timestamp1 = Timestamp.from(Instant.now());
+            Timestamp timestamp2 = Timestamp.from(Instant.now());
+            user.setAccountCreateDate(timestamp1);
+            user.setPasswordLastChangedDate(timestamp1);
+            timestamp2.setMonth(timestamp2.getMonth() + 2);
+            user.setPasswordExpireDate(timestamp2);
+
+//            emailServiceClient.validateEmail(EmailValidatorRequest.builder()
+//                    .email(request.getEmail())
+//                    .username(request.getUsername()).build()); //TODO activate this line when email service is ready
+
+            this.userRepository.save(user);
+
+            balanceService.createBalance(CreateBalanceRequest.builder()
+                    .userId(user.getUserId())
+                    .username(user.getUsername())
+                    .build(), user);
+
+            BaseResponse baseResponse = new BaseResponse();
+            baseResponse.setErrorDescription("ACTIVATE USER FROM EMAIL");
+
+            return baseResponse;
+        } catch (Exception e) {
+            log.error("Create user error: " + e);
+            throw new CreateFailedException(USER_CREATE_FAILED);
         }
-
-        CreateBalanceRequest createBalanceRequest = new CreateBalanceRequest();
-        createBalanceRequest.setUser_id(user.getUserId());
-        createBalanceRequest.setUsername(user.getUsername());
-
-        Timestamp timestamp1 = Timestamp.from(Instant.now());
-        Timestamp timestamp2 = Timestamp.from(Instant.now());
-        user.setAccountCreateDate(timestamp1);
-        user.setPasswordLastChangedDate(timestamp1);
-        timestamp2.setMonth(timestamp2.getMonth() + 2);
-        user.setPasswordExpireDate(timestamp2);
-
-        EmailValidatorRequest emailValidatorRequest = new EmailValidatorRequest();
-        emailValidatorRequest.setEmail(request.getEmail());
-        emailValidatorRequest.setUsername(request.getUsername());
-//        emailServiceClient.validateEmail(emailValidatorRequest);
-
-        this.userRepository.save(user);
-
-        balanceService.createBalance(createBalanceRequest, user);
-
-        BaseResponse baseResponse = new BaseResponse();
-        baseResponse.setErrorDescription("ACTIVATE USER FROM EMAIL");
-
-//        log.info("User registered , user email : " + user.getEmail() + " user first name : " + user.getFirstName());
-        return baseResponse;
     }
 
     @Transactional
@@ -158,85 +159,66 @@ public class UserServiceImpl implements IUserService {
             }
 
             localAddress.setDistrict(localAddress.getDistrict().toUpperCase());
-
             addressRepository.save(localAddress);
 
             return new BaseResponse();
         }
     }
 
-    public BaseResponse changePassword(PasswordChangeRequest request) {
-        Timestamp timestamp = Timestamp.from(Instant.now());
+    public BaseResponse changePassword(PasswordChangeRequest request) throws NotFoundException {
+        try {
+            Timestamp timestamp = Timestamp.from(Instant.now());
 
-        String localUsername = tokenServiceClient.extractedUsername(request);
-        User localUser = userRepository.findByUsername(localUsername);
-        localUser.setPasswordLastChangedDate(timestamp);
+            String localUsername = tokenServiceClient.extractedUsername(request);
+            User localUser = userRepository.findByUsername(localUsername);
+            localUser.setPasswordLastChangedDate(timestamp);
 
-        timestamp.setMonth(timestamp.getMonth() + 2);
+            timestamp.setMonth(timestamp.getMonth() + 2);
+            localUser.setPasswordExpireDate(timestamp);
 
-        localUser.setPasswordExpireDate(timestamp);
+            localUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(localUser);
 
-        localUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(localUser);
-
-        return new BaseResponse();
+            return new BaseResponse();
+        } catch (Exception e) {
+            log.error("Change password error: " + e);
+            throw new NotFoundException(USER_NOT_FOUND);
+        }
     }
 
-    public String extractRole(BaseRequest request) {
-        String localUsername = tokenServiceClient.extractedUsername(request);
-        return userRepository.findByUsername(localUsername).getRole().toString();
+    public String extractRole(BaseRequest request) throws NotFoundException {
+        try {
+            String localUsername = tokenServiceClient.extractedUsername(request);
+            return userRepository.findByUsername(localUsername).getRole().toString();
+        } catch (Exception e) {
+            log.error("Extract role error: " + e);
+            throw new NotFoundException(USER_NOT_FOUND);
+        }
     }
 
-    public BaseResponse activateUser(UserActivateRequest request) throws ActivateCodeNotMatchedException {
-        User localUser = userRepository.findByUsername(request.getUsername());
-        if (Boolean.TRUE.equals(emailServiceClient.activateCodeMatched(request))) {
+    public BaseResponse activateUser(UserActivateRequest request) throws NotFoundException {
+        try {
+            User localUser = userRepository.findByUsername(request.getUsername());
             localUser.setActive(1);
             userRepository.save(localUser);
             return new BaseResponse();
-        } else {
-            throw new ActivateCodeNotMatchedException("ACTIVATE CODE NOT MATCHED");
+        } catch (Exception e) {
+            log.error("Activate user error: " + e);
+            throw new NotFoundException(USER_NOT_FOUND);
         }
     }
 
-    @Transactional
-    public BaseResponse registerSeller(SellerAddRequest request) {
-        createUser(modelMapper.map(request, UserAddRequest.class));
-        sellerRepository.save(Seller.builder().sellerName(request.getSellerName()).sellerUsername(request.getUsername()).build());
-        return new BaseResponse();
-    }
-
-    public BaseResponse activateSellerByAdmin(String sellerId, BaseRequest baseRequest) throws AccessDeniedException {
-
-        if (extractRole(baseRequest).equals("ADMIN")) {
-            String localUsername = sellerRepository.findSellerBySellerId(sellerId).getSellerUsername();
-            User user = userRepository.findByUsername(localUsername);
-            user.setActive(1);
-            userRepository.save(user);
-            sellerRepository.delete(sellerRepository.findSellerBySellerId(sellerId));
-
-            return new BaseResponse();
-        } else {
-            throw new AccessDeniedException("THIS SERVICE ONLY FOR ADMIN");
+    public BaseResponse forgetPassword(ForgetPasswordRequest request) throws NotFoundException {
+        try {
+            return emailServiceClient.forgetPasswordCreateCode(request);
+        } catch (Exception e) {
+            log.error("Forget password error: " + e);
+            throw new NotFoundException(USER_NOT_FOUND);
         }
     }
 
-    public SellerGetResponse sellerGetResponse(String sellers, BaseRequest baseRequest) throws AccessDeniedException {
-        if (extractRole(baseRequest).equals("ADMIN")) {
-            return new SellerGetResponse(mapperService.map(sellerRepository.findSellersBySellerId(sellers), SellerDTO.class));
-        } else {
-            throw new AccessDeniedException("THIS SERVICE ONLY FOR ADMIN");
-        }
-    }
-
-    public String extractSellerName(BaseRequest request) {
-        return sellerRepository.findSellerBySellerUsername(tokenServiceClient.extractedUsername(request)).getSellerUsername();
-    }
-
-    public BaseResponse forgetPassword(ForgetPasswordRequest request) {
-        return emailServiceClient.forgetPasswordCreateCode(request);
-    }
-
-    public BaseResponse addPhoto (String localUsername ,MultipartFile image) throws IOException {
+    //TODO refactor use token service client instead localUsername for username
+    public BaseResponse addPhoto(String localUsername, MultipartFile image) throws IOException {
 //        String localUsername = tokenServiceClient.extractedUsername(baseRequest);
         User localUser = userRepository.findByUsername(localUsername);
         localUser.setPhoto(Base64.getEncoder().encodeToString(image.getBytes()));
@@ -245,7 +227,8 @@ public class UserServiceImpl implements IUserService {
         return new BaseResponse();
     }
 
-    public byte[] getPhoto (BaseRequest baseRequest) throws IOException{
+
+    public byte[] getPhoto(BaseRequest baseRequest) {
         String localUsername = tokenServiceClient.extractedUsername(baseRequest);
         userRepository.findByUsername(localUsername);
         byte[] imageBytes = java.util.Base64.getDecoder().decode(userRepository.findByUsername(localUsername).getPhoto());
@@ -256,10 +239,10 @@ public class UserServiceImpl implements IUserService {
     }
 
 
-
-    public BaseResponse changePwByCode(ChangePwByCodeRequest request) throws ActivateCodeNotMatchedException {
-        User localUser = userRepository.findByEmail(request.getEmail());
-        if (emailServiceClient.passwordChangeCodeMatched(request) && request.getNewPassword().equals(request.getNewPasswordAgain())) {
+    //TODO REFACTOR...
+    public BaseResponse changePasswordByCode(ChangePwByCodeRequest request) throws NotFoundException {
+        try {
+            User localUser = userRepository.findByEmail(request.getEmail());
             localUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
             Timestamp timestamp = Timestamp.from(Instant.now());
             localUser.setPasswordLastChangedDate(timestamp);
@@ -268,8 +251,9 @@ public class UserServiceImpl implements IUserService {
 
             userRepository.save(localUser);
             return new BaseResponse();
-        }else{
-            throw new ActivateCodeNotMatchedException("EMAIL CODE NOT MATCHED");
+        }catch (Exception e){
+            log.error("Change password by code error: " + e);
+            throw new NotFoundException(USER_NOT_FOUND);
         }
     }
 
