@@ -12,7 +12,6 @@ import lombok.Setter;
 public class ErrorCodes {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
     private String id;
 

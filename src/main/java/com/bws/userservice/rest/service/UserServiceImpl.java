@@ -10,7 +10,6 @@ import com.bws.userservice.exception.NotFoundException;
 import com.bws.userservice.model.Role;
 import com.bws.userservice.model.entity.*;
 import com.bws.userservice.repository.*;
-import com.bws.userservice.rest.service.interfaces.ICreateService;
 import com.bws.userservice.rest.service.interfaces.IUserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,7 @@ import static com.bws.userservice.model.constants.ErrorCodeConstants.USER_NOT_FO
 @Slf4j
 @Service
 
-public class UserServiceImpl implements IUserService, ICreateService {
+public class UserServiceImpl implements IUserService{
 
     private final ModelMapper modelMapper;
 
@@ -59,7 +58,6 @@ public class UserServiceImpl implements IUserService, ICreateService {
     }
 
     @Transactional
-    @Override
     public BaseResponse createUser(UserAddRequest request) throws CreateFailedException {
         try {
             User user = modelMapper.map(request, User.class);
@@ -92,7 +90,7 @@ public class UserServiceImpl implements IUserService, ICreateService {
                     .build(), user);
 
             BaseResponse baseResponse = new BaseResponse();
-            baseResponse.setErrorDescription("ACTIVATE USER FROM EMAIL");
+            baseResponse.setDescription("ACTIVATE USER FROM EMAIL");
 
             return baseResponse;
         } catch (Exception e) {

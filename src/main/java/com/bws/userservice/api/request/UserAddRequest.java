@@ -12,7 +12,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserAddRequest {
-
     @UniqueUsername(message = ErrorCodeConstants.USERNAME_IN_USE)
     @NotEmpty(message = ErrorCodeConstants.USERNAME_NOT_NULL)
     private String username;
@@ -29,5 +28,4 @@ public class UserAddRequest {
     private String firstName;
 
     private String lastName;
-
 }

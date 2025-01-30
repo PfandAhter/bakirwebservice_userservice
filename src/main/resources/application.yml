@@ -3,17 +3,26 @@ server:
 
 spring:
   datasource:
+#    url: jdbc:mysql://custommysql:3306/user_service?useTimezone=true&serverTimezone=UTC
+#    username: root
+#    password: 1998Bursa
+#    url: jdbc:mysql://demo-app-mysql:${DB_PORT:3306}/${DB_NAME}
+#    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/user_service
     username: springstudent
     password: springstudent
+  #    username: ${DB_USER}
+#    password: ${DB_PASSWORD}
   jpa:
     properties:
-      javax:
-        persistence:
-          validation:
-            mode: none
+        jakarta:
+          persistence:
+            validation:
+              mode: none
     hibernate:
       ddl-auto: update
+      dialect: org.hibernate.dialect.MySQL5Dialect
+
     open-in-view: false
   main:
     banner-mode: off

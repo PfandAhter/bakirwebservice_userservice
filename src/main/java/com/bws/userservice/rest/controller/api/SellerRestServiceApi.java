@@ -3,10 +3,12 @@ package com.bws.userservice.rest.controller.api;
 import com.bws.userservice.api.request.BaseRequest;
 import com.bws.userservice.api.request.SellerAddRequest;
 import com.bws.userservice.api.response.BaseResponse;
+import com.bws.userservice.api.response.CompanyIdResponse;
 import com.bws.userservice.api.response.SellerGetResponse;
 import com.bws.userservice.exception.AccessDeniedException;
 import com.bws.userservice.exception.CreateFailedException;
 import com.bws.userservice.exception.NotFoundException;
+import com.bws.userservice.exception.ProcessFailedException;
 import com.bws.userservice.model.constants.PropertyConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -29,5 +31,8 @@ public interface SellerRestServiceApi {
 
     @PostMapping(path = PropertyConstants.REQUEST_SECURE_REST_CONTROLLER_USER_SERVICE_SELLER_ACTIVATE_BY_ADMIN)
     ResponseEntity<BaseResponse> activateSellerByAdmin (@RequestParam("sellerid") String sellerid , @RequestBody BaseRequest baseRequest) throws AccessDeniedException, NotFoundException;
+
+    @PostMapping("/extract/company")
+    ResponseEntity<CompanyIdResponse> extractCompanyId (@Valid @RequestBody BaseRequest baseRequest) throws NotFoundException, ProcessFailedException;
 
 }

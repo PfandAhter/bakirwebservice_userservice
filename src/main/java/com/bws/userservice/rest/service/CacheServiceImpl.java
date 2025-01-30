@@ -21,11 +21,11 @@ public class CacheServiceImpl implements ICacheService {
 
     private final ErrorCodeRepository errorCodeRepository;
 
-
+    @Override
     public void getErrorCodes() {
         try {
             List<ErrorCodes> errorCodes = errorCodeRepository.findAll();
-            if (errorCodes != null) {
+            if (!errorCodes.isEmpty()) {
                 errorCodes.forEach(errorCode -> errorCodeList.put(errorCode.getId(),errorCode));
             }
         } catch (Exception e) {

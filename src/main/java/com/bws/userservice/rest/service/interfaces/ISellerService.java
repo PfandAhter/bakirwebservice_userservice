@@ -3,10 +3,12 @@ package com.bws.userservice.rest.service.interfaces;
 import com.bws.userservice.api.request.BaseRequest;
 import com.bws.userservice.api.request.SellerAddRequest;
 import com.bws.userservice.api.response.BaseResponse;
+import com.bws.userservice.api.response.CompanyIdResponse;
 import com.bws.userservice.api.response.SellerGetResponse;
 import com.bws.userservice.exception.AccessDeniedException;
 import com.bws.userservice.exception.CreateFailedException;
 import com.bws.userservice.exception.NotFoundException;
+import com.bws.userservice.exception.ProcessFailedException;
 
 public interface ISellerService {
     SellerGetResponse sellerGetResponse(String sellers, BaseRequest baseRequest) throws NotFoundException;
@@ -16,5 +18,7 @@ public interface ISellerService {
     String extractSellerName(BaseRequest request) throws NotFoundException;
 
     BaseResponse activateSellerByAdmin(String sellerId, BaseRequest baseRequest) throws AccessDeniedException, NotFoundException;
+
+    CompanyIdResponse extractCompanyId (BaseRequest request) throws NotFoundException, ProcessFailedException;
 
 }

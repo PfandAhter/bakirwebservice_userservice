@@ -10,7 +10,6 @@ import com.bws.userservice.exception.NotMatchedException;
 import com.bws.userservice.model.Role;
 import com.bws.userservice.rest.service.interfaces.IUserService;
 import com.bws.userservice.rest.validator.annotations.GeneralValidator;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,6 +47,4 @@ public class GeneralValidatorImpl implements GeneralValidator {
             throw new NotMatchedException(ACTIVATE_CODE_NOT_MATCHED);
         }
     }
-
-
 }

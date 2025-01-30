@@ -23,6 +23,9 @@ public class Seller {
     @Column(name = "seller_username")
     private String sellerUsername;
 
+    @Column(name = "company_id")
+    private String companyId;
+
     @Column(name = "active")
     private int active;
 

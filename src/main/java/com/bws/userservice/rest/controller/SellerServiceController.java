@@ -3,10 +3,12 @@ package com.bws.userservice.rest.controller;
 import com.bws.userservice.api.request.BaseRequest;
 import com.bws.userservice.api.request.SellerAddRequest;
 import com.bws.userservice.api.response.BaseResponse;
+import com.bws.userservice.api.response.CompanyIdResponse;
 import com.bws.userservice.api.response.SellerGetResponse;
 import com.bws.userservice.exception.AccessDeniedException;
 import com.bws.userservice.exception.CreateFailedException;
 import com.bws.userservice.exception.NotFoundException;
+import com.bws.userservice.exception.ProcessFailedException;
 import com.bws.userservice.rest.controller.api.SellerRestServiceApi;
 import com.bws.userservice.rest.service.interfaces.ISellerService;
 import com.bws.userservice.rest.validator.annotations.GeneralValidator;
@@ -48,6 +50,11 @@ public class SellerServiceController implements SellerRestServiceApi {
     public ResponseEntity<BaseResponse> activateSellerByAdmin(String sellerid, BaseRequest baseRequest) throws AccessDeniedException, NotFoundException {
         generalvalidator.hasAuthority(baseRequest);
         return ResponseEntity.ok(sellerService.activateSellerByAdmin(sellerid, baseRequest));
+    }
+
+    @Override
+    public ResponseEntity<CompanyIdResponse> extractCompanyId(BaseRequest baseRequest) throws NotFoundException, ProcessFailedException {
+        return ResponseEntity.ok(sellerService.extractCompanyId(baseRequest));
     }
 
 

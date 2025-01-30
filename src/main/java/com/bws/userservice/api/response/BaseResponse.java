@@ -4,6 +4,7 @@ import com.bws.userservice.model.constants.Constants;
 import com.bws.userservice.model.constants.ResponseStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,19 +12,20 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonPropertyOrder({
         "Status",
-        "ErrorName",
-        "Desription"
+        "Error",
+        "Description"
 })
 public class BaseResponse {
 
     @JsonProperty("Status")
     private String status = ResponseStatus.SUCCESS;
 
-    @JsonProperty("ErrorName")
-    private String errorCode = Constants.SUCCESS;
+    @JsonProperty("Error")
+    private String error = Constants.SUCCESS;
 
-    @JsonProperty("Desription")
-    private String errorDescription = Constants.SUCCESS;
+    @JsonProperty("Description")
+    private String description = Constants.SUCCESS;
 }

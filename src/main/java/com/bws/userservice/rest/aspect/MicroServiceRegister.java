@@ -24,39 +24,35 @@ public class MicroServiceRegister {
 
     private final MicroServiceRegisterClient microServiceRegisterClient;
 
-    private String microServiceCode;
+    private static final String microServiceCode = "US857661488a18452ab5516a52573950e2";
 
     private static final String microServiceName = "USER-SERVICE";
 
     private final CacheServiceImpl cacheService;
 
-
-
     @EventListener(ApplicationReadyEvent.class)
     public void logToDataBaseServiceReady(){
-        microServiceCode = Util.generateCode();
-        MicroServiceReadyRequest microServiceReadyRequest = new MicroServiceReadyRequest();
-        microServiceReadyRequest.setMicroServiceCode(microServiceCode);
-        microServiceReadyRequest.setMicroServiceStatus("UP");
-        microServiceReadyRequest.setMicroServiceErrorCode("6000");
-        microServiceReadyRequest.setMicroServiceReadyDate(Timestamp.from(Instant.now()));
-        microServiceReadyRequest.setMicroServiceName(microServiceName);
-
+//        MicroServiceReadyRequest microServiceReadyRequest = new MicroServiceReadyRequest();
+//        microServiceReadyRequest.setServiceCode(microServiceCode);
+//        microServiceReadyRequest.setServiceStatus("UP");
+//        microServiceReadyRequest.setErrorCode("6000");
+//        microServiceReadyRequest.setServiceReadyDate(Timestamp.from(Instant.now()));
+//        microServiceReadyRequest.setServiceName(microServiceName);
+//
         cacheService.getErrorCodes();
-
-
-        microServiceRegisterClient.microServiceReady(microServiceReadyRequest);
+//
+//        microServiceRegisterClient.microServiceReady(microServiceReadyRequest);
     }
 
     @PreDestroy
     public void testLogToDatabaseStopped(){
-        MicroServiceStoppedRequest microServiceStoppedRequest = new MicroServiceStoppedRequest();
-        microServiceStoppedRequest.setMicroServiceStoppedDate(Timestamp.from(Instant.now()));
-        microServiceStoppedRequest.setMicroServiceName(microServiceName);
-        microServiceStoppedRequest.setMicroServiceErrorCode("6000");
-        microServiceStoppedRequest.setMicroServiceStatus("DOWN");
-        microServiceStoppedRequest.setMicroServiceCode(microServiceCode);
-
-        microServiceRegisterClient.microServiceStopped(microServiceStoppedRequest);
+//        MicroServiceStoppedRequest microServiceStoppedRequest = new MicroServiceStoppedRequest();
+//        microServiceStoppedRequest.setServiceStoppedDate(Timestamp.from(Instant.now()));
+//        microServiceStoppedRequest.setServiceName(microServiceName);
+//        microServiceStoppedRequest.setErrorCode("6000");
+//        microServiceStoppedRequest.setServiceStatus("DOWN");
+//        microServiceStoppedRequest.setServiceCode(microServiceCode);
+//
+//        microServiceRegisterClient.microServiceStopped(microServiceStoppedRequest);
     }
 }

@@ -6,5 +6,7 @@ import java.util.HashMap;
 
 public interface ICacheService {
 
+    void getErrorCodes();
+
     HashMap<String,ErrorCodes> getErrorCodesList();
 }
